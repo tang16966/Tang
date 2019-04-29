@@ -4,34 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorBackgourd">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:background="@drawable/bg_title_down">
-        <ImageView
-            android:id="@+id/menu"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/left"
-            android:layout_centerVertical="true"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorFontGray"
-            android:text="@string/title_web"
-            android:textSize="20dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true" />
 
-        <ImageView
-            android:id="@+id/tick"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/tick"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"/>
-    </RelativeLayout>
+    <include layout="@layout/fragment_title"/>
+
     <trs.com.tang.view.ProgressWebView
         android:id="@+id/web_view"
         android:layout_width="match_parent"

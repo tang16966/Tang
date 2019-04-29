@@ -7,36 +7,7 @@
     android:orientation="vertical"
     tools:context=".fragment.QRFragment">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_title_down"
-        android:padding="10dp">
-
-        <ImageView
-            android:id="@+id/menu"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_centerVertical="true"
-            android:src="@drawable/menu" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="@string/title_qr_code"
-            android:textColor="@color/colorFontGray"
-            android:textSize="20dp" />
-
-        <ImageView
-            android:id="@+id/scann"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/scann_qr" />
-    </RelativeLayout>
+    <include layout="@layout/fragment_title"/>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -7,12 +7,14 @@ import android.content.Intent;
 import android.os.Build;
 
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -23,7 +25,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+
+import java.util.ArrayList;
+import java.util.List;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
@@ -43,13 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int[] icons;
     private int[] titles;
+    private List<Fragment> fragments;
 
-    private QRFragment qrFragment;
-    private TranslateFragment translateFragment;
-    private ServerFragment serverFragment;
-    private VideoFragment videoFragment;
-
-    private InputMethodManager imm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,20 +80,21 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initFragment() {
-        qrFragment = new QRFragment();
-        translateFragment = new TranslateFragment();
-        serverFragment = new ServerFragment();
-        videoFragment = new VideoFragment();
-        fragmentManager.beginTransaction().replace(R.id.content,translateFragment).commit();
+        fragments = new ArrayList<>();
+        fragments.add(new ServerFragment());
+        fragments.add(new QRFragment());
+        fragments.add(new VideoFragment());
+        fragments.add(new TranslateFragment());
+        fragmentManager.beginTransaction().replace(R.id.content,fragments.get(3)).commit();
     }
 
     private void initData() {
         icons = new int[]{
-                R.drawable.ip,
-                R.drawable.qr_code,
-                R.drawable.video,
-                R.drawable.translate,
-                R.drawable.esc_account
+                R.mipmap.ip,
+                R.mipmap.qr_code,
+                R.mipmap.video,
+                R.mipmap.translate,
+                R.mipmap.esc_account
         };
         titles = new int[]{
                 R.string.title_ip,
@@ -108,31 +110,13 @@ public class MainActivity extends AppCompatActivity {
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switch (position){
-                    case 0:
-                        fragmentManager.beginTransaction().replace(R.id.content,serverFragment).commit();
-                        break;
-                    case 1:
-                        fragmentManager.beginTransaction().replace(R.id.content,qrFragment).commit();
-                        break;
-                    case 2:
-                        fragmentManager.beginTransaction().replace(R.id.content,videoFragment).commit();
-                        break;
-                    case 3:
-                        fragmentManager.beginTransaction().replace(R.id.content,translateFragment).commit();
-                        break;
-                    case 4:
-                        startActivity(new Intent(MainActivity.this,LoginActivity.class));
-                        finish();
-                        break;
+                if (position == 4){
+                    startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                    finish();
+                    return;
                 }
-                //获取输入法
-                imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                //如果打开
-                if (imm.isActive()){
-                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
-                            InputMethodManager.HIDE_NOT_ALWAYS);
-                }
+                fragmentManager.beginTransaction().replace(R.id.content,fragments.get(position)).commit();
+
                 drawer.closeDrawer(Gravity.START);
             }
         });
@@ -185,4 +169,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private long time;
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            if (fragmentManager.getBackStackEntryCount()>0){
+                fragmentManager.popBackStack();
+            }else {
+                if (System.currentTimeMillis() - time > 1500){
+                    Toast.makeText(this, "再按一次退出", Toast.LENGTH_SHORT).show();
+                    time = System.currentTimeMillis();
+                }else {
+                    finish();
+                }
+            }
+        }
+        return true;
+    }
 }

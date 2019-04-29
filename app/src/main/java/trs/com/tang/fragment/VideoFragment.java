@@ -1,17 +1,11 @@
 package trs.com.tang.fragment;
 
 
-import android.content.ClipData;
+
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
+
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.DrawerLayout;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -31,8 +25,7 @@ import trs.com.tang.appconfig.LocalApp;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class VideoFragment extends Fragment {
-    private View view;
+public class VideoFragment extends BaseFragment {
     private EditText et_txt;
     private Spinner sp_interface;
     private Button bt_parsing;
@@ -48,16 +41,6 @@ public class VideoFragment extends Fragment {
     }
 
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_video, container, false);
-        initDrawer();
-        initView();
-        init();
-        return view;
-    }
 
     @Override
     public void onStart() {
@@ -65,11 +48,40 @@ public class VideoFragment extends Fragment {
         et_txt.setText(LocalApp.RETURN_URL);
     }
 
-    private void init() {
+    @Override
+    protected int getLayoutId() {
+        return R.layout.fragment_video;
+    }
+
+    @Override
+    protected void initView() {
+        et_txt = view.findViewById(R.id.et_txt);
+        sp_interface = view.findViewById(R.id.sp_interface);
+        bt_parsing = view.findViewById(R.id.bt_parsing);
+        gridView = view.findViewById(R.id.grid_view);
+    }
+
+    @Override
+    protected void initData() {
         cmb = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         initSpinnerData();
         setParsing();
         setGrid();
+    }
+
+    @Override
+    protected int getTitle() {
+        return R.string.title_video;
+    }
+
+    @Override
+    protected void setLeftImaig(ImageView ivLeft) {
+
+    }
+
+    @Override
+    protected void setRightImaig(ImageView ivRight) {
+
     }
 
     private void setGrid() {
@@ -88,12 +100,6 @@ public class VideoFragment extends Fragment {
         bt_parsing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                cmb.setPrimaryClip(ClipData.newPlainText("二维码", getUrl()));
-//                Intent intent = new Intent();
-//                intent.setAction(Intent.ACTION_VIEW);
-//                Uri content_url = Uri.parse(getUrl());
-//                intent.setData(content_url);
-//                startActivity(Intent.createChooser(intent, "请选择浏览器"));
                 playFragment = new PlayFragment(getUrl());
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.content,playFragment).addToBackStack(null).commit();
@@ -127,27 +133,12 @@ public class VideoFragment extends Fragment {
         sp_interface.setAdapter(new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,list));
     }
 
-    private void initView() {
-        et_txt = view.findViewById(R.id.et_txt);
-        sp_interface = view.findViewById(R.id.sp_interface);
-        bt_parsing = view.findViewById(R.id.bt_parsing);
-        gridView = view.findViewById(R.id.grid_view);
-    }
+
 
     private String getUrl(){
         return data[sp_interface.getSelectedItemPosition()]+et_txt.getText();
     }
 
-    private void initDrawer() {
-        ImageView iv = view.findViewById(R.id.menu);
-        final DrawerLayout drawerLayout = getActivity().findViewById(R.id.drawer);
-        iv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(Gravity.START);
-            }
-        });
-    }
 
     private WebFragment webFragment = new WebFragment();
     private class GridAdapter extends BaseAdapter{

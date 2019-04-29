@@ -25,10 +25,8 @@ import static trs.com.tang.utils.RootUtil.execShell;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ServerFragment extends Fragment {
-    private View view;
+public class ServerFragment extends BaseFragment {
     private TextView tv_ip;
-    private ImageView iv_wifi;
     private Switch sw_btn;
     private SharedPreferences sharedPreferences;
 
@@ -36,22 +34,9 @@ public class ServerFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_server, container, false);
-        initDrawer();
-        initView();
-        init();
-        return view;
-    }
-
-    private void init() {
-        setIP();
-        setWifi();
-        setADB();
+    protected int getLayoutId() {
+        return R.layout.fragment_server;
     }
 
     private void setADB() {
@@ -72,14 +57,6 @@ public class ServerFragment extends Fragment {
         });
     }
 
-    private void setWifi() {
-        iv_wifi.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
-            }
-        });
-    }
 
     private void setIP() {
         String ip = IpUtil.getIpAddressString();
@@ -96,11 +73,39 @@ public class ServerFragment extends Fragment {
 
     }
 
-    private void initView() {
+    @Override
+    protected void initView() {
         tv_ip = view.findViewById(R.id.tv_ip);
-        iv_wifi = view.findViewById(R.id.iv_wifi);
         sw_btn = view.findViewById(R.id.sw_btn);
         sharedPreferences = getActivity().getSharedPreferences("wifi",0);
+    }
+
+    @Override
+    protected void initData() {
+        sharedPreferences = getActivity().getSharedPreferences("wifi",0);
+        setIP();
+        setADB();
+    }
+
+    @Override
+    protected int getTitle() {
+        return R.string.title_ip;
+    }
+
+    @Override
+    protected void setLeftImaig(ImageView ivLeft) {
+
+    }
+
+    @Override
+    protected void setRightImaig(ImageView ivRight) {
+        ivRight.setImageResource(R.mipmap.adb_close);
+        ivRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
+            }
+        });
     }
 
     private void saveDate(boolean isClose){
@@ -112,16 +117,7 @@ public class ServerFragment extends Fragment {
         return sharedPreferences.getBoolean("isClose",false);
     }
 
-    private void initDrawer() {
-        ImageView iv = view.findViewById(R.id.menu);
-        final DrawerLayout drawerLayout = getActivity().findViewById(R.id.drawer);
-        iv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(Gravity.START);
-            }
-        });
-    }
+
 
 
 

@@ -75,11 +75,11 @@ public class ScannFragment extends Fragment implements QRCodeView.Delegate {
             public void onClick(View v) {
                 if (isColse){
                     zx.closeFlashlight();
-                    iv_flashlight.setImageResource(R.drawable.flashlight_stop);
+                    iv_flashlight.setImageResource(R.mipmap.flashlight_stop);
                     isColse = false;
                 }else {
                     zx.openFlashlight();
-                    iv_flashlight.setImageResource(R.drawable.flashlight_start);
+                    iv_flashlight.setImageResource(R.mipmap.flashlight_start);
                     isColse = true;
                 }
             }

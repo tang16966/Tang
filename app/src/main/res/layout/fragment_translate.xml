@@ -6,26 +6,7 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:background="@color/colorBackgourd">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:background="@drawable/bg_title_down">
-        <ImageView
-            android:id="@+id/menu"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/menu"
-            android:layout_centerVertical="true"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorFontGray"
-            android:text="@string/title_translate"
-            android:textSize="20dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true" />
-    </RelativeLayout>
+    <include layout="@layout/fragment_title"/>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -131,7 +131,7 @@ public class TitanicTextView extends TextView{
     private void createShader() {
 
         if (wave == null) {
-            wave = getResources().getDrawable(R.drawable.wave);
+            wave = getResources().getDrawable(R.mipmap.wave);
         }
 
         int waveW = wave.getIntrinsicWidth();
