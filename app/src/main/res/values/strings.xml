@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">工作室</string>
+
+    <string name="login_mane">请输入账号</string>
+    <string name="login_pwd">请输入密码</string>
+    <string name="login_save">保存密码</string>
+    <string name="login_auto">自动登录</string>
+    <string name="login_button">登    录</string>
+
+    <string name="title_ip">服务器</string>
+    <string name="title_qr_code">二维码</string>
+    <string name="title_video">视频解析</string>
+    <string name="title_translate">翻译</string>
+    <string name="title_esc_account">退出登录</string>
+    <string name="title_ss">扫一扫</string>
+    <string name="title_web">选择视频</string>
+    <string name="title_pay">播放</string>
+    <string name="ss_xiangce">相册</string>
+
+    <string name="input">输入关键字</string>
+    <string name="clean">清除</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+</resources>
