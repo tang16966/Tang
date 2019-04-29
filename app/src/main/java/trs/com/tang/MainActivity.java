@@ -1,12 +1,16 @@
 package trs.com.tang;
 
 import android.Manifest;
+import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
 
 import android.os.Build;
 
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
@@ -33,6 +37,8 @@ import java.util.List;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
+import trs.com.tang.bean.DragMenu;
+import trs.com.tang.fragment.ProcessFragment;
 import trs.com.tang.fragment.QRFragment;
 import trs.com.tang.fragment.ServerFragment;
 import trs.com.tang.fragment.TranslateFragment;
@@ -47,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawer;
     private FragmentManager fragmentManager;
 
-    private int[] icons;
-    private int[] titles;
-    private List<Fragment> fragments;
+    private List<DragMenu> dragMenus;
+    private static final int MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS = 1101;
+
 
 
     @Override
@@ -71,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         content = findViewById(R.id.content);
         list_view = findViewById(R.id.list_view);
         initData();
-        initFragment();
         initListView();
         initPermission();
 
@@ -79,44 +84,29 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void initFragment() {
-        fragments = new ArrayList<>();
-        fragments.add(new ServerFragment());
-        fragments.add(new QRFragment());
-        fragments.add(new VideoFragment());
-        fragments.add(new TranslateFragment());
-        fragmentManager.beginTransaction().replace(R.id.content,fragments.get(3)).commit();
-    }
-
     private void initData() {
-        icons = new int[]{
-                R.mipmap.ip,
-                R.mipmap.qr_code,
-                R.mipmap.video,
-                R.mipmap.translate,
-                R.mipmap.esc_account
-        };
-        titles = new int[]{
-                R.string.title_ip,
-                R.string.title_qr_code,
-                R.string.title_video,
-                R.string.title_translate,
-                R.string.title_esc_account
-        };
+        dragMenus = new ArrayList<>();
+        dragMenus.add(new DragMenu(R.mipmap.ip,R.string.title_ip,new ServerFragment()));
+        dragMenus.add(new DragMenu(R.mipmap.qr_code,R.string.title_qr_code,new QRFragment()));
+        dragMenus.add(new DragMenu(R.mipmap.video,R.string.title_video,new VideoFragment()));
+        dragMenus.add(new DragMenu(R.mipmap.translate,R.string.title_translate,new TranslateFragment()));
+        dragMenus.add(new DragMenu(R.mipmap.tools,R.string.title_tools,new ProcessFragment()));
+        dragMenus.add(new DragMenu(R.mipmap.esc_account,R.string.title_esc_account,null));
+
     }
 
     private void initListView() {
         list_view.setAdapter(new MyAdapter());
+        fragmentManager.beginTransaction().replace(R.id.content,dragMenus.get(4).getFragment()).commit();
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 4){
+                if (position == 5){
                     startActivity(new Intent(MainActivity.this,LoginActivity.class));
                     finish();
                     return;
                 }
-                fragmentManager.beginTransaction().replace(R.id.content,fragments.get(position)).commit();
-
+                fragmentManager.beginTransaction().replace(R.id.content,dragMenus.get(position).getFragment()).commit();
                 drawer.closeDrawer(Gravity.START);
             }
         });
@@ -145,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return icons.length;
+            return dragMenus.size();
         }
 
         @Override
@@ -163,10 +153,35 @@ public class MainActivity extends AppCompatActivity {
             View view = View.inflate(MainActivity.this,R.layout.item_main_left,null);
             ImageView image = view.findViewById(R.id.image);
             TextView txt = view.findViewById(R.id.txt);
-            image.setImageResource(icons[position]);
-            txt.setText(titles[position]);
+            image.setImageResource(dragMenus.get(position).getIcon());
+            txt.setText(dragMenus.get(position).getTitle());
             return view;
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS) {
+            if (!hasPermission()) {
+                startActivityForResult(
+                        new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),
+                        MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS);
+            }
+        }
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private boolean hasPermission() {
+        AppOpsManager appOps = (AppOpsManager)
+                getSystemService(Context.APP_OPS_SERVICE);
+        int mode = 0;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    android.os.Process.myUid(), getPackageName());
+        }
+        return mode == AppOpsManager.MODE_ALLOWED;
     }
 
     private long time;
@@ -179,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 if (System.currentTimeMillis() - time > 1500){
                     Toast.makeText(this, "再按一次退出", Toast.LENGTH_SHORT).show();
                     time = System.currentTimeMillis();
+                    return false;
                 }else {
                     finish();
                 }
