@@ -2,6 +2,7 @@ package trs.com.tang.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
@@ -23,9 +24,8 @@ public abstract class BaseFragment extends Fragment {
     private DrawerLayout drawerLayout;
 
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater,  ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(getLayoutId(), container, false);
         drawerLayout = getActivity().findViewById(R.id.drawer);
         init();
@@ -42,7 +42,28 @@ public abstract class BaseFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 drawerLayout.openDrawer(Gravity.START);
+
+            }
+        });
+        drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View view, float v) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View view) {
                 closeIMM();
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View view) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int i) {
+
             }
         });
         initView();
@@ -51,11 +72,11 @@ public abstract class BaseFragment extends Fragment {
         setRightImaig(ivRight);
     }
 
-    protected void closeIMM(){
+    protected void closeIMM() {
         //获取输入法
-        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         //如果打开
-        if (imm.isActive()){
+        if (imm.isActive()) {
             imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
         }

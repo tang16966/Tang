@@ -107,6 +107,9 @@ public class WebFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        webView.setWebViewClient(null);
+        webView.getSettings().setJavaScriptEnabled(false);
+        webView.clearCache(true);
         webView.destroy();
     }
 }
