@@ -86,7 +86,6 @@ public class StartActivity extends AppCompatActivity {
                     public void onResponse(JSONObject jsonObject) {
                         try {
                             if (jsonObject.getString("result").equals("S")) {
-                                LocalApp.STATUS = jsonObject.getInt("status");
                                 startActivity(new Intent(StartActivity.this, MainActivity.class));
                                 finish();
                             } else {

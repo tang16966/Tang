@@ -1,42 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<trs.com.tang.view.DragItem xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="5dp"
-    android:gravity="center_vertical">
-
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/cb_select"/>
-
-    <ImageView
-        android:layout_marginLeft="10dp"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:id="@+id/iv_icon"/>
+    android:orientation="horizontal"
+    android:id="@+id/drag_item">
 
     <LinearLayout
-        android:layout_marginLeft="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/tv_app_name"
+        android:layout_width="1080px"
+        android:padding="5dp"
+        android:gravity="center_vertical"
+        android:layout_height="wrap_content">
+        <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="5555"
-            android:textSize="15dp"
-            android:textColor="#000"/>
-        <TextView
-            android:id="@+id/tv_process_name"
+            android:id="@+id/cb_select"/>
+
+        <ImageView
+            android:layout_marginLeft="10dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/iv_icon"/>
+
+        <LinearLayout
+            android:layout_marginLeft="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="5555"
-            android:textSize="12dp"
-            android:textColor="#666"/>
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tv_app_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5555"
+                android:textSize="15dp"
+                android:textColor="#000"/>
+            <TextView
+                android:id="@+id/tv_process_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5555"
+                android:textSize="12dp"
+                android:textColor="#666"/>
+        </LinearLayout>
     </LinearLayout>
 
-
-
-</LinearLayout>
+</trs.com.tang.view.DragItem>

@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                     time = System.currentTimeMillis();
                     return false;
                 }else {
-                    finish();
+                    System.exit(0);
                 }
             }
         }

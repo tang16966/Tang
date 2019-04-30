@@ -21,10 +21,12 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.litepal.LitePal;
 
 import me.leefeng.promptlibrary.PromptDialog;
 import trs.com.tang.appconfig.AppAPI;
 import trs.com.tang.appconfig.LocalApp;
+import trs.com.tang.bean.UserInfo;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -85,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //登录
-    private void login(String name,String pwd){
+    private void login(final String name, String pwd){
         String url = AppAPI.LoginAddress;
         JSONObject jsonObject = new JSONObject();
         try {
@@ -105,6 +107,8 @@ public class LoginActivity extends AppCompatActivity {
                             if (jsonObject.getString("result").equals("S")){
                                 LocalApp.STATUS = jsonObject.getInt("status");
                                 startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                                LitePal.deleteAll(UserInfo.class);
+                                new UserInfo(name,LocalApp.STATUS,0).save();
                                 promptDialog.dismiss();
                                 finish();
                             }else {

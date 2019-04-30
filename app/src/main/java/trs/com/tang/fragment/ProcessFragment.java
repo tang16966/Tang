@@ -18,6 +18,7 @@ import java.util.List;
 import trs.com.tang.R;
 import trs.com.tang.bean.AppInfo;
 import trs.com.tang.utils.ProcessManage;
+import trs.com.tang.view.DragItem;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -108,9 +109,18 @@ public class ProcessFragment extends BaseFragment {
             ivIcon = view.findViewById(R.id.iv_icon);
             tvAppName = view.findViewById(R.id.tv_app_name);
             tvProcessName = view.findViewById(R.id.tv_process_name);
+            DragItem dragItem = view.findViewById(R.id.drag_item);
 
             final AppInfo appInfo = appInfos.get(position);
 
+            dragItem.setOnDragDelect(new DragItem.OnDragDelect() {
+                @Override
+                public void delete() {
+                    ProcessManage.removeProcess(appInfo.getProcessName());
+                    appInfos.remove(position);
+                    notifyDataSetChanged();
+                }
+            });
             cbSelect.setChecked(appInfo.isSelect());
             ivIcon.setImageDrawable(appInfo.getIcon());
             tvAppName.setText(appInfo.getAppName());
@@ -133,9 +143,10 @@ public class ProcessFragment extends BaseFragment {
             if (a.isSelect()){
                 ProcessManage.removeProcess(a.getProcessName());
                 appInfos.remove(i);
+                i--;
             }
-            myAdapter.notifyDataSetChanged();
         }
+        myAdapter.notifyDataSetChanged();
     }
 
 }
