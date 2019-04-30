@@ -28,13 +28,12 @@ public class ProcessManage {
     private List<UsageStats> appList;
     private Context context;
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public ProcessManage(Context context) {
         this.context = context;
-        UsageStatsManager usm = (UsageStatsManager) context.getSystemService(USAGE_STATS_SERVICE);
-        long time = System.currentTimeMillis();
-        appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
-                time - 1000 * 1000, time);
+//        UsageStatsManager usm = (UsageStatsManager) context.getSystemService(USAGE_STATS_SERVICE);
+//        long time = System.currentTimeMillis();
+//        appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
+//                time - 1000 * 1000, time);
         packageManager = context.getPackageManager();
 
     }
@@ -72,11 +71,11 @@ public class ProcessManage {
     }
 
 
-    public List<AppInfo> getAppInfo(){
+    public List<AppInfo> getAppInfo() {
         List<AppInfo> appInfos = new ArrayList<>();
         PackageInfo packageInfo;
         ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo rs : am.getRunningServices(Integer.MAX_VALUE)){
+        for (ActivityManager.RunningServiceInfo rs : am.getRunningServices(Integer.MAX_VALUE)) {
             try {
                 packageInfo = packageManager.getPackageInfo(rs.process, 0);
                 if (isUserApp(packageInfo)) {
@@ -98,10 +97,35 @@ public class ProcessManage {
         return appInfos;
     }
 
-    private List<AppInfo> removeHeave(List<AppInfo> list){
-        for (int i = 0; i < list.size()-1; i++) {
-            for (int j = i+1; j < list.size(); j++) {
-                if (list.get(i).getProcessName().equals(list.get(j).getProcessName())){
+    public  List<AppInfo> getProcess() {
+        List<AppInfo> appInfos = new ArrayList<>();
+        PackageInfo packageInfo;
+        for (String pakeName : RootUtil.getProcess()){
+            try {
+                packageInfo = packageManager.getPackageInfo(pakeName, 0);
+                if (isUserApp(packageInfo)) {
+                    ApplicationInfo applicationInfo = packageInfo.applicationInfo;
+                    appInfos.add(new AppInfo(
+                            applicationInfo.loadIcon(packageManager),
+                            (String) applicationInfo.loadLabel(packageManager),
+                            applicationInfo.packageName,
+                            false
+                    ));
+                }
+
+            } catch (PackageManager.NameNotFoundException e) {
+
+            }
+
+        }
+        appInfos = removeHeave(appInfos);
+        return appInfos;
+    }
+
+    private List<AppInfo> removeHeave(List<AppInfo> list) {
+        for (int i = 0; i < list.size() - 1; i++) {
+            for (int j = i + 1; j < list.size(); j++) {
+                if (list.get(i).getProcessName().equals(list.get(j).getProcessName())) {
                     list.remove(j);
                     j--;
                 }
@@ -109,7 +133,6 @@ public class ProcessManage {
         }
         return list;
     }
-
 
 
     /**

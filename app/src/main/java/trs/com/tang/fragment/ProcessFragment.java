@@ -1,8 +1,9 @@
 package trs.com.tang.fragment;
 
 
+import android.app.Activity;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +16,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import me.leefeng.promptlibrary.PromptDialog;
 import trs.com.tang.R;
 import trs.com.tang.bean.AppInfo;
 import trs.com.tang.utils.ProcessManage;
+import trs.com.tang.view.CircleRefreshLayout;
 import trs.com.tang.view.DragItem;
 
 /**
@@ -29,7 +32,9 @@ public class ProcessFragment extends BaseFragment {
     private List<AppInfo> appInfos;
     private MyAdapter myAdapter;
     private ProcessManage processManage;
+    private Handler handler;
 
+    private CircleRefreshLayout refresh;
 
 
     public ProcessFragment() {
@@ -48,15 +53,42 @@ public class ProcessFragment extends BaseFragment {
     @Override
     protected void initView() {
         listView = view.findViewById(R.id.list_view);
+        refresh = view.findViewById(R.id.refresh);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
     @Override
     protected void initData() {
-        processManage = new ProcessManage(getContext());
-        appInfos = processManage.getAppInfo();
-        myAdapter = new MyAdapter();
-        listView.setAdapter(myAdapter);
+        handler = new Handler();
+        start();
+        refresh.setOnRefreshListener(new CircleRefreshLayout.OnCircleRefreshListener() {
+            @Override
+            public void completeRefresh() {
+
+            }
+
+            @Override
+            public void refreshing() {
+                new Thread(){
+
+                    @Override
+                    public void run() {
+                        processManage = new ProcessManage(getContext());
+                        appInfos = processManage.getProcess();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                myAdapter = new MyAdapter();
+                                listView.setAdapter(myAdapter);
+                                refresh.finishRefreshing();
+                            }
+                        },2000);
+                        super.run();
+                    }
+                }.start();
+            }
+        });
+
     }
 
     @Override
@@ -136,6 +168,29 @@ public class ProcessFragment extends BaseFragment {
             return view;
         }
     }
+
+    private void start(){
+        final PromptDialog promptDialog = new PromptDialog(getActivity());
+        promptDialog.showLoading("正在加载");
+        new Thread(){
+            @Override
+            public void run() {
+                processManage = new ProcessManage(getContext());
+                appInfos = processManage.getProcess();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        myAdapter = new MyAdapter();
+                        listView.setAdapter(myAdapter);
+                        promptDialog.dismiss();
+                    }
+                },500);
+                super.run();
+            }
+        }.start();
+    }
+
+
 
     private void cleanApp(){
         for (int i = 0; i < appInfos.size(); i++) {
