@@ -23,4 +23,20 @@ public class UserInfo extends LitePalSupport {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
+    public int getUserState() {
+        return userState;
+    }
+
+    public void setUserState(int userState) {
+        this.userState = userState;
+    }
+
+    public int getExitPosition() {
+        return exitPosition;
+    }
+
+    public void setExitPosition(int exitPosition) {
+        this.exitPosition = exitPosition;
+    }
 }

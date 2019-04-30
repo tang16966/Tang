@@ -32,12 +32,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import org.litepal.LitePal;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 import trs.com.tang.bean.DragMenu;
+import trs.com.tang.bean.UserInfo;
 import trs.com.tang.fragment.ProcessFragment;
 import trs.com.tang.fragment.QRFragment;
 import trs.com.tang.fragment.ServerFragment;
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout content;
     private DrawerLayout drawer;
     private FragmentManager fragmentManager;
+    private UserInfo info;
 
     private List<DragMenu> dragMenus;
     private static final int MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS = 1101;
@@ -86,26 +90,39 @@ public class MainActivity extends AppCompatActivity {
 
     private void initData() {
         dragMenus = new ArrayList<>();
+        List<UserInfo> all = LitePal.findAll(UserInfo.class);
+        for (UserInfo a : all){
+            info = a;
+        }
+        if (info == null){
+            info = new UserInfo();
+            info.setExitPosition(0);
+            info.setUserState(1);
+        }
         dragMenus.add(new DragMenu(R.mipmap.ip,R.string.title_ip,new ServerFragment()));
         dragMenus.add(new DragMenu(R.mipmap.qr_code,R.string.title_qr_code,new QRFragment()));
         dragMenus.add(new DragMenu(R.mipmap.video,R.string.title_video,new VideoFragment()));
         dragMenus.add(new DragMenu(R.mipmap.translate,R.string.title_translate,new TranslateFragment()));
-        dragMenus.add(new DragMenu(R.mipmap.tools,R.string.title_tools,new ProcessFragment()));
+        if (info.getUserState() == 0){
+            dragMenus.add(new DragMenu(R.mipmap.tools,R.string.title_tools,new ProcessFragment()));
+        }
         dragMenus.add(new DragMenu(R.mipmap.esc_account,R.string.title_esc_account,null));
 
     }
 
     private void initListView() {
         list_view.setAdapter(new MyAdapter());
-        fragmentManager.beginTransaction().replace(R.id.content,dragMenus.get(4).getFragment()).commit();
+        fragmentManager.beginTransaction().replace(R.id.content,dragMenus.get(info.getExitPosition()).getFragment()).commit();
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 5){
+                if (position == dragMenus.size()-1){
                     startActivity(new Intent(MainActivity.this,LoginActivity.class));
                     finish();
                     return;
                 }
+                info.setExitPosition(position);
+                info.save();
                 fragmentManager.beginTransaction().replace(R.id.content,dragMenus.get(position).getFragment()).commit();
                 drawer.closeDrawer(Gravity.START);
             }
