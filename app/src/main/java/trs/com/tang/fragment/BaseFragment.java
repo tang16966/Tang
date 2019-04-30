@@ -21,7 +21,7 @@ public abstract class BaseFragment extends Fragment {
     private ImageView ivLeft;
     private TextView tvTxt;
     private ImageView ivRight;
-    private DrawerLayout drawerLayout;
+    protected DrawerLayout drawerLayout;
 
 
     @Override

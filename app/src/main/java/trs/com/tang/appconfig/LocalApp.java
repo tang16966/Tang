@@ -9,4 +9,7 @@ public class LocalApp {
 
     //web返回的地址
     public static String RETURN_URL = "";
+
+    //网盘地址
+    public static String CLOUD_URL = "http://www.sgxxs.cn";
 }

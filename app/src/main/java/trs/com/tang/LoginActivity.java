@@ -23,6 +23,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
+import me.leefeng.promptlibrary.PromptButton;
+import me.leefeng.promptlibrary.PromptButtonListener;
 import me.leefeng.promptlibrary.PromptDialog;
 import trs.com.tang.appconfig.AppAPI;
 import trs.com.tang.appconfig.LocalApp;
@@ -30,7 +32,7 @@ import trs.com.tang.bean.UserInfo;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private TextView tv_title;
+    private TextView tv_title,tv_login;
     private Button button;
     private EditText et_name,et_pwd;
     private CheckBox cb_save,cb_auto;
@@ -69,6 +71,21 @@ public class LoginActivity extends AppCompatActivity {
                 promptDialog.showLoading("正在登录");
                 login(sharedPreferences.getString("name",""),
                         sharedPreferences.getString("pwd",""));
+            }
+        });
+        tv_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                promptDialog.showAlertSheet("游客模式缺少付费模块",
+                        true,new PromptButton("进入", new PromptButtonListener() {
+                    @Override
+                    public void onClick(PromptButton promptButton) {
+                        LitePal.deleteAll(UserInfo.class);
+                        new UserInfo("tang",1,0).save();
+                        startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                        finish();
+                    }
+                }));
             }
         });
     }
@@ -146,6 +163,7 @@ public class LoginActivity extends AppCompatActivity {
         et_pwd = findViewById(R.id.et_pwd);
         cb_save = findViewById(R.id.cb_save);
         cb_auto = findViewById(R.id.cb_auto);
+        tv_login = findViewById(R.id.tv_login);
     }
 
     private void initWindow() {

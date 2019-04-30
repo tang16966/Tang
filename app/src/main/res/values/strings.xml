@@ -7,11 +7,12 @@
     <string name="login_auto">自动登录</string>
     <string name="login_button">登    录</string>
 
-    <string name="title_ip">服务器</string>
+    <string name="title_ip">高级设置</string>
     <string name="title_qr_code">二维码</string>
     <string name="title_video">视频解析</string>
     <string name="title_translate">翻译</string>
     <string name="title_tools">进程管理</string>
+    <string name="title_cloud">云盘管理</string>
     <string name="title_esc_account">退出登录</string>
     <string name="title_ss">扫一扫</string>
     <string name="title_web">选择视频</string>

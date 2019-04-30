@@ -1,17 +1,14 @@
 package trs.com.tang;
 
 import android.Manifest;
-import android.app.AppOpsManager;
-import android.content.Context;
+
 import android.content.Intent;
 
 import android.os.Build;
 
-import android.provider.Settings;
+
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.Fragment;
+
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +19,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
+
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
@@ -37,15 +34,20 @@ import org.litepal.LitePal;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.leefeng.promptlibrary.PromptButton;
+import me.leefeng.promptlibrary.PromptButtonListener;
+import me.leefeng.promptlibrary.PromptDialog;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 import trs.com.tang.bean.DragMenu;
 import trs.com.tang.bean.UserInfo;
+import trs.com.tang.fragment.CloudFragment;
 import trs.com.tang.fragment.ProcessFragment;
 import trs.com.tang.fragment.QRFragment;
 import trs.com.tang.fragment.ServerFragment;
 import trs.com.tang.fragment.TranslateFragment;
 import trs.com.tang.fragment.VideoFragment;
+import trs.com.tang.utils.RootUtil;
 
 
 @RuntimePermissions
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawer;
     private FragmentManager fragmentManager;
     private UserInfo info;
+    private boolean isRoot;
+    private CloudFragment cloudFragment;
 
     private List<DragMenu> dragMenus;
     private static final int MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS = 1101;
@@ -94,19 +98,23 @@ public class MainActivity extends AppCompatActivity {
         for (UserInfo a : all){
             info = a;
         }
+        //如果是游客登录
         if (info == null){
             info = new UserInfo();
             info.setExitPosition(0);
             info.setUserState(1);
         }
-        dragMenus.add(new DragMenu(R.mipmap.ip,R.string.title_ip,new ServerFragment()));
+        dragMenus.add(new DragMenu(R.mipmap.translate,R.string.title_translate,new TranslateFragment()));
         dragMenus.add(new DragMenu(R.mipmap.qr_code,R.string.title_qr_code,new QRFragment()));
         dragMenus.add(new DragMenu(R.mipmap.video,R.string.title_video,new VideoFragment()));
-        dragMenus.add(new DragMenu(R.mipmap.translate,R.string.title_translate,new TranslateFragment()));
+        dragMenus.add(new DragMenu(R.mipmap.ip,R.string.title_ip,new ServerFragment()));
+        dragMenus.add(new DragMenu(R.mipmap.tools,R.string.title_tools,new ProcessFragment()));
         if (info.getUserState() == 0){
-            dragMenus.add(new DragMenu(R.mipmap.tools,R.string.title_tools,new ProcessFragment()));
+            dragMenus.add(new DragMenu(R.mipmap.cloud,R.string.title_cloud,cloudFragment = new CloudFragment()));
         }
         dragMenus.add(new DragMenu(R.mipmap.esc_account,R.string.title_esc_account,null));
+
+        isRoot = RootUtil.upgradeRootPermission(getPackageCodePath());
 
     }
 
@@ -121,9 +129,23 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                     return;
                 }
+                if (!isRoot){
+                    if (position == 3 || position == 4){
+                        new PromptDialog(MainActivity.this).showAlertSheet(
+                                "使用高级功能需要root",
+                                true,
+                                new PromptButton("确定", new PromptButtonListener() {
+                                    @Override
+                                    public void onClick(PromptButton promptButton) {
+
+                                    }
+                                }));
+                        return;
+                    }
+                }
+                fragmentManager.beginTransaction().replace(R.id.content,dragMenus.get(position).getFragment()).commit();
                 info.setExitPosition(position);
                 info.save();
-                fragmentManager.beginTransaction().replace(R.id.content,dragMenus.get(position).getFragment()).commit();
                 drawer.closeDrawer(Gravity.START);
             }
         });
@@ -176,35 +198,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS) {
-            if (!hasPermission()) {
-                startActivityForResult(
-                        new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),
-                        MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS);
-            }
-        }
-
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private boolean hasPermission() {
-        AppOpsManager appOps = (AppOpsManager)
-                getSystemService(Context.APP_OPS_SERVICE);
-        int mode = 0;
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                    android.os.Process.myUid(), getPackageName());
-        }
-        return mode == AppOpsManager.MODE_ALLOWED;
-    }
 
     private long time;
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK){
+            if (info.getUserState() == 0 && info.getExitPosition() == 5){
+                if (cloudFragment.onBackPressed()){
+                    return true;
+                }
+            }
             if (fragmentManager.getBackStackEntryCount()>0){
                 fragmentManager.popBackStack();
             }else {
