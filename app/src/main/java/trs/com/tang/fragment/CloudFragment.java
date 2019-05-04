@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
@@ -12,6 +13,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.webkit.DownloadListener;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -127,7 +130,21 @@ public class CloudFragment extends BaseFragment {
 
             }
         });
+        webView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
 
+                return true;
+            }
+        });
+
+    }
+
+    private void openImageChooserActivity() {
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("image/*");
+        startActivityForResult(Intent.createChooser(i, "Image Chooser"));
     }
 
     private void download(String url, String fileName) {
@@ -200,5 +217,8 @@ public class CloudFragment extends BaseFragment {
         return false;
     }
 
-
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }
