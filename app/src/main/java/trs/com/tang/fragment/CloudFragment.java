@@ -1,8 +1,5 @@
 package trs.com.tang.fragment;
 
-
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,7 +8,7 @@ import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+import android.text.TextUtils;
 import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -26,6 +23,8 @@ import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadTask;
 
+
+import java.io.File;
 import java.util.regex.Pattern;
 
 import me.leefeng.promptlibrary.PromptButton;
@@ -35,8 +34,11 @@ import trs.com.tang.MainActivity;
 import trs.com.tang.R;
 import trs.com.tang.appconfig.LocalApp;
 import trs.com.tang.utils.DownLoadNotification;
+import trs.com.tang.utils.FileUtils;
 import trs.com.tang.utils.FormatUtils;
 import trs.com.tang.view.ProgressWebView;
+
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -47,6 +49,7 @@ public class CloudFragment extends BaseFragment {
     private DownLoadNotification downLoadNotification;
     private Handler handler;
     private int id = 1;
+    private ValueCallback<Uri[]> mUploadMessage;
 
     public CloudFragment() {
         // Required empty public constructor
@@ -130,10 +133,16 @@ public class CloudFragment extends BaseFragment {
 
             }
         });
+        //选择上传文件
         webView.setWebChromeClient(new WebChromeClient(){
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-
+                if (mUploadMessage != null) {
+                    mUploadMessage.onReceiveValue(null);
+                }
+                mUploadMessage = filePathCallback;
+                openImageChooserActivity();
                 return true;
             }
         });
@@ -144,7 +153,7 @@ public class CloudFragment extends BaseFragment {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("image/*");
-        startActivityForResult(Intent.createChooser(i, "Image Chooser"));
+        startActivityForResult(Intent.createChooser(i, "Image Chooser"),1);
     }
 
     private void download(String url, String fileName) {
@@ -220,5 +229,29 @@ public class CloudFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (null == mUploadMessage) return;
+            Uri result = data == null || resultCode != RESULT_OK ? null : data.getData();
+            if (result == null) {
+                mUploadMessage.onReceiveValue(null);
+                mUploadMessage = null;
+                return;
+            }
+
+            String path =  FileUtils.getPath(getContext(), result);
+            if (TextUtils.isEmpty(path)) {
+                mUploadMessage.onReceiveValue(null);
+                mUploadMessage = null;
+                return;
+            }
+            Uri uri = Uri.fromFile(new File(path));
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mUploadMessage.onReceiveValue(new Uri[]{uri});
+            } else {
+//                mUploadMessage.onReceiveValue(uri);
+            }
+            mUploadMessage = null;
+        }
     }
 }
